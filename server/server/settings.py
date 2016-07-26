@@ -103,12 +103,10 @@ DATABASES = {
 # https://docs.djangoproject.com/en/1.6/topics/cache
 CACHES = {
     'default': {
-        'BACKEND': 'django.core.cache.backends.locmem.LocMemCache',
+        'BACKEND': 'django.core.cache.backends.memcached.MemcachedCache',
+        'LOCATION': '127.0.0.1:11211',
         'TIMEOUT': 30,
-        'OPTIONS': {
-            # At 1kB an object, 200MB
-            'MAX_ENTRIES': 200000
-        }
+        'KEY_PREFIX': 'suas',
     }
 }
 

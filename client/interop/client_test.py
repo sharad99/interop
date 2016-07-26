@@ -13,7 +13,9 @@ from . import Client, AsyncClient, InteropError, Target, Telemetry
 # if the defaults are not correct.
 server = os.getenv('TEST_INTEROP_SERVER', 'http://localhost')
 username = os.getenv('TEST_INTEROP_USER', 'testuser')
-password = os.getenv('TEST_INTEROP_PASS', 'testpass')
+password = os.getenv('TEST_INTEROP_USER_PASS', 'testpass')
+admin_username = os.getenv('TEST_INTEROP_ADMIN', 'testadmin')
+admin_password = os.getenv('TEST_INTEROP_ADMIN_PASS', 'testpass')
 
 
 class TestClientLoggedOut(unittest.TestCase):
@@ -51,6 +53,11 @@ class TestClient(unittest.TestCase):
 
     def setUp(self):
         """Create a logged in Client."""
+        # Create an admin client to clear cache.
+        client = Client(server, admin_username, admin_password)
+        client.get('/api/clear_cache')
+
+        # Test rest with non-admin clients.
         self.client = Client(server, username, password)
         self.async_client = AsyncClient(server, username, password)
 

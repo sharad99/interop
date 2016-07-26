@@ -7,6 +7,8 @@ class auvsi_suas::server_setup {
     require auvsi_suas::server_install
     # ... and the database
     require auvsi_suas::postgresql_setup
+    # ... and the memcached
+    require auvsi_suas::memcached_setup
 
     # Prepare database
     exec { 'migrate':

@@ -68,6 +68,7 @@ ensure_puppet_module puppetlabs-postgresql
 ensure_puppet_module puppetlabs-apache
 ensure_puppet_module puppetlabs-nodejs
 ensure_puppet_module stankevich-python
+ensure_puppet_module saz-memcached
 
 # Launch the Puppet process. Prepares machine.
 log "Executing Puppet setup..."
