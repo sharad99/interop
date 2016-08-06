@@ -287,11 +287,8 @@ class TestMissionConfigModelSampleMission(TestCase):
         self.assertEqual(False, teams[user1]['moving_obst_collision'][25])
         self.assertEqual(False, teams[user1]['moving_obst_collision'][26])
 
-    def test_json(self):
-        """Conversion to dict for JSON."""
-        config = MissionConfig.objects.get()
-        data = config.json()
-
+    def assert_non_superuser_data(self, data):
+        """Tests non-superuser data is correct."""
         self.assertIn('id', data)
         self.assertEqual(3, data['id'])
 
@@ -356,12 +353,6 @@ class TestMissionConfigModelSampleMission(TestCase):
         self.assertEqual(1000.0, data['search_grid_points'][0]['altitude_msl'])
         self.assertEqual(10, data['search_grid_points'][0]['order'])
 
-        self.assertIn('emergent_last_known_pos', data)
-        self.assertIn('latitude', data['emergent_last_known_pos'])
-        self.assertIn('longitude', data['emergent_last_known_pos'])
-        self.assertEqual(38.0, data['emergent_last_known_pos']['latitude'])
-        self.assertEqual(-79.0, data['emergent_last_known_pos']['longitude'])
-
         self.assertIn('off_axis_target_pos', data)
         self.assertIn('latitude', data['off_axis_target_pos'])
         self.assertIn('longitude', data['off_axis_target_pos'])
@@ -379,6 +370,28 @@ class TestMissionConfigModelSampleMission(TestCase):
         self.assertIn('longitude', data['air_drop_pos'])
         self.assertEqual(38.0, data['air_drop_pos']['latitude'])
         self.assertEqual(-79.0, data['air_drop_pos']['longitude'])
+
+    def test_non_superuser_json(self):
+        """Conversion to dict for JSON."""
+        config = MissionConfig.objects.get()
+        data = config.json(is_superuser=False)
+        self.assert_non_superuser_data(data)
+
+        self.assertNotIn('emergent_last_known_pos', data)
+        self.assertNotIn('stationary_obstacles', data)
+        self.assertNotIn('moving_obstacles', data)
+
+    def test_superuser_json(self):
+        """Conversion to dict for JSON."""
+        config = MissionConfig.objects.get()
+        data = config.json(is_superuser=True)
+        self.assert_non_superuser_data(data)
+
+        self.assertIn('emergent_last_known_pos', data)
+        self.assertIn('latitude', data['emergent_last_known_pos'])
+        self.assertIn('longitude', data['emergent_last_known_pos'])
+        self.assertEqual(38.0, data['emergent_last_known_pos']['latitude'])
+        self.assertEqual(-79.0, data['emergent_last_known_pos']['longitude'])
 
         self.assertIn('stationary_obstacles', data)
         self.assertEqual(2, len(data['stationary_obstacles']))

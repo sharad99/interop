@@ -4,11 +4,13 @@ import json
 import logging
 from auvsi_suas.models import MissionConfig
 from auvsi_suas.views import logger
+from auvsi_suas.views.decorators import require_login
 from auvsi_suas.views.decorators import require_superuser
 from django.contrib.auth.models import User
 from django.core.cache import cache
 from django.http import HttpResponse
 from django.http import HttpResponseBadRequest
+from django.http import HttpResponseNotFound
 from django.http import HttpResponseServerError
 from django.utils.decorators import method_decorator
 from django.views.generic import View
@@ -76,17 +78,33 @@ def mission_for_request(request_params):
 
 
 class Missions(View):
-    """Gets a list of all missions."""
+    """Handles requests for all missions."""
 
-    @method_decorator(require_superuser)
+    @method_decorator(require_login)
     def dispatch(self, *args, **kwargs):
         return super(Missions, self).dispatch(*args, **kwargs)
 
     def get(self, request):
         missions = MissionConfig.objects.all()
         out = []
-
         for mission in missions:
-            out.append(mission.json())
+            out.append(mission.json(request.user.is_superuser))
 
         return HttpResponse(json.dumps(out), content_type="application/json")
+
+
+class MissionsId(View):
+    """Handles requests for a specific mission."""
+
+    @method_decorator(require_login)
+    def dispatch(self, *args, **kwargs):
+        return super(MissionsId, self).dispatch(*args, **kwargs)
+
+    def get(self, request, pk):
+        try:
+            mission = MissionConfig.objects.get(pk=pk)
+            return HttpResponse(
+                json.dumps(mission.json(request.user.is_superuser)),
+                content_type="application/json")
+        except MissionConfig.DoesNotExist:
+            return HttpResponseNotFound('Mission %s not found.' % pk)

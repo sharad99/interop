@@ -1,6 +1,7 @@
 """Tests for the missions module."""
 
 import datetime
+import functools
 import json
 from auvsi_suas.models import GpsPosition
 from auvsi_suas.models import MissionConfig
@@ -16,6 +17,7 @@ from django.utils import timezone
 
 login_url = reverse('auvsi_suas:login')
 missions_url = reverse('auvsi_suas:missions')
+missions_id_url = functools.partial(reverse, 'auvsi_suas:missions_id')
 
 
 class TestMissionForRequest(TestCase):
@@ -107,53 +109,57 @@ class TestMissionsViewLoggedOut(TestCase):
         response = self.client.get(missions_url)
         self.assertEqual(403, response.status_code)
 
+        response = self.client.get(missions_id_url(args=[1]))
+        self.assertEqual(403, response.status_code)
+
 
 class TestMissionsViewCommon(TestCase):
     """Common test setup"""
 
     def setUp(self):
+        self.normaluser = User.objects.create_user(
+            'normaluser', 'email@example.com', 'normalpass')
+        self.normaluser.save()
+
         self.superuser = User.objects.create_superuser(
             'superuser', 'email@example.com', 'superpass')
         self.superuser.save()
 
-        # Login
-        response = self.client.post(login_url, {
-            'username': 'superuser',
-            'password': 'superpass'
-        })
+    def Login(self, is_superuser):
+        response = None
+        if is_superuser:
+            response = self.client.post(login_url, {
+                'username': 'superuser',
+                'password': 'superpass'
+            })
+        else:
+            response = self.client.post(login_url, {
+                'username': 'normaluser',
+                'password': 'normalpass'
+            })
         self.assertEqual(200, response.status_code)
 
 
 class TestMissionsViewBasic(TestMissionsViewCommon):
     """Tests the missions view with minimal data."""
 
-    def test_normal_user(self):
-        """Normal users not allowed access."""
-        user = User.objects.create_user('testuser', 'email@example.com',
-                                        'testpass')
-        user.save()
-
-        # Login
-        response = self.client.post(login_url, {
-            'username': 'testuser',
-            'password': 'testpass'
-        })
-        self.assertEqual(200, response.status_code)
-
-        response = self.client.get(missions_url)
-        self.assertEqual(403, response.status_code)
-
     def test_post(self):
         """POST not allowed"""
+        self.Login(is_superuser=False)
         response = self.client.post(missions_url)
         self.assertEqual(405, response.status_code)
 
     def test_no_missions(self):
         """No missions results in empty list."""
+        self.Login(is_superuser=True)
         response = self.client.get(missions_url)
         self.assertEqual(200, response.status_code)
-
         self.assertEqual([], json.loads(response.content))
+
+    def test_incorrect_mission(self):
+        self.Login(is_superuser=True)
+        response = self.client.get(missions_id_url(args=[1]))
+        self.assertEqual(404, response.status_code)
 
 
 class TestMissionsViewSampleMission(TestMissionsViewCommon):
@@ -161,13 +167,7 @@ class TestMissionsViewSampleMission(TestMissionsViewCommon):
 
     fixtures = ['testdata/sample_mission.json']
 
-    def test_correct_json(self):
-        """Response JSON is properly formatted."""
-        response = self.client.get(missions_url)
-        self.assertEqual(200, response.status_code)
-
-        data = json.loads(response.content)
-
+    def assert_non_superuser_data(self, data):
         self.assertEqual(1, len(data))
 
         self.assertIn('id', data[0])
@@ -221,13 +221,6 @@ class TestMissionsViewSampleMission(TestMissionsViewCommon):
                          data[0]['search_grid_points'][0]['altitude_msl'])
         self.assertEqual(10, data[0]['search_grid_points'][0]['order'])
 
-        self.assertIn('emergent_last_known_pos', data[0])
-        self.assertIn('latitude', data[0]['emergent_last_known_pos'])
-        self.assertIn('longitude', data[0]['emergent_last_known_pos'])
-        self.assertEqual(38.0, data[0]['emergent_last_known_pos']['latitude'])
-        self.assertEqual(-79.0,
-                         data[0]['emergent_last_known_pos']['longitude'])
-
         self.assertIn('off_axis_target_pos', data[0])
         self.assertIn('latitude', data[0]['off_axis_target_pos'])
         self.assertIn('longitude', data[0]['off_axis_target_pos'])
@@ -245,3 +238,38 @@ class TestMissionsViewSampleMission(TestMissionsViewCommon):
         self.assertIn('longitude', data[0]['air_drop_pos'])
         self.assertEqual(38.0, data[0]['air_drop_pos']['latitude'])
         self.assertEqual(-79.0, data[0]['air_drop_pos']['longitude'])
+
+    def test_non_superuser(self):
+        """Response JSON is properly formatted for non-superuser."""
+        self.Login(is_superuser=False)
+        response = self.client.get(missions_url)
+        self.assertEqual(200, response.status_code)
+        data = json.loads(response.content)
+
+        self.assert_non_superuser_data(data)
+        self.assertNotIn('emergent_last_known_pos', data[0])
+        self.assertNotIn('stationary_obstacles', data[0])
+        self.assertNotIn('moving_obstacles', data[0])
+
+        response = self.client.get(missions_url)
+        self.assertEqual(200, response.status_code)
+        self.assertEqual(data, json.loads(response.content))
+
+    def test_superuser(self):
+        """Response JSON is properly formatted for non-superuser."""
+        self.Login(is_superuser=True)
+        response = self.client.get(missions_url)
+        self.assertEqual(200, response.status_code)
+        data = json.loads(response.content)
+
+        self.assert_non_superuser_data(data)
+        self.assertIn('emergent_last_known_pos', data[0])
+        self.assertIn('latitude', data[0]['emergent_last_known_pos'])
+        self.assertIn('longitude', data[0]['emergent_last_known_pos'])
+        self.assertEqual(38.0, data[0]['emergent_last_known_pos']['latitude'])
+        self.assertEqual(-79.0,
+                         data[0]['emergent_last_known_pos']['longitude'])
+
+        response = self.client.get(missions_url)
+        self.assertEqual(200, response.status_code)
+        self.assertEqual(data, json.loads(response.content))

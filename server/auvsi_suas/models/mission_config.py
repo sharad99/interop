@@ -332,7 +332,7 @@ class MissionConfig(models.Model):
 
         return results
 
-    def json(self):
+    def json(self, is_superuser):
         """Return a dict, for conversion to JSON."""
         ret = {
             'id': self.pk,
@@ -344,10 +344,6 @@ class MissionConfig(models.Model):
             "fly_zones": [],  # Filled in below
             "mission_waypoints": [],  # Filled in below
             "search_grid_points": [],  # Filled in below
-            "emergent_last_known_pos": {
-                "latitude": self.emergent_last_known_pos.latitude,
-                "longitude": self.emergent_last_known_pos.longitude,
-            },
             'off_axis_target_pos': {
                 'latitude': self.off_axis_target_pos.latitude,
                 'longitude': self.off_axis_target_pos.longitude,
@@ -360,8 +356,6 @@ class MissionConfig(models.Model):
                 'latitude': self.air_drop_pos.latitude,
                 'longitude': self.air_drop_pos.longitude,
             },
-            'stationary_obstacles': [],  # Filled in below
-            'moving_obstacles': [],  # Filled in below
         }
         for zone in self.fly_zones.all():
             pts = [
@@ -384,7 +378,6 @@ class MissionConfig(models.Model):
                 'altitude_msl': waypoint.position.altitude_msl,
                 'order': waypoint.order,
             })
-
         for point in self.search_grid_points.all():
             ret['search_grid_points'].append({
                 'id': point.pk,
@@ -393,6 +386,17 @@ class MissionConfig(models.Model):
                 'altitude_msl': point.position.altitude_msl,
                 'order': point.order,
             })
+        if not is_superuser:
+            return ret
+
+        ret.update({
+            "emergent_last_known_pos": {
+                "latitude": self.emergent_last_known_pos.latitude,
+                "longitude": self.emergent_last_known_pos.longitude,
+            },
+            'stationary_obstacles': [],  # Filled in below
+            'moving_obstacles': [],  # Filled in below
+        })
         for obst in self.stationary_obstacles.all():
             ret['stationary_obstacles'].append({
                 'id': obst.pk,
