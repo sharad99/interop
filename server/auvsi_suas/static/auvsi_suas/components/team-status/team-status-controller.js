@@ -15,6 +15,11 @@ TeamStatusCtrl = function() {
      * @export {?Object} The team object, injected by directive.
      */
     this.team;
+
+    /**
+     * @export {?Object} The telemetry object, injected by directive.
+     */
+    this.telemetry;
 };
 
 /**
@@ -40,7 +45,8 @@ angular.module('auvsiSuasApp').directive('teamStatus', [
             restrict: 'E',
             scope: {},
             bindToController: {
-                team: '='
+                team: '=',
+                telemetry: '='
             },
             controller: TeamStatusCtrl,
             controllerAs: 'teamStatusCtrl',

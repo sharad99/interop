@@ -65,10 +65,12 @@ MissionDashboardCtrl.prototype.getCurrentMission = function() {
  */
 MissionDashboardCtrl.prototype.rebuildMissionScene_ = function() {
     var telemetry = [];
-    for (var i = 0; i < this.backend_.teams.length; i++) {
-        var team = this.backend_.teams[i];
-        if (team.active && this.backend_.telemetry[team.id]) {
-            telemetry.push(this.backend_.telemetry[team.id]);
+    if (this.backend_.teams) {
+        for (var i = 0; i < this.backend_.teams.length; i++) {
+            var team = this.backend_.teams[i];
+            if (team.active && this.backend_.telemetry[team.id]) {
+                telemetry.push(this.backend_.telemetry[team.id]);
+            }
         }
     }
 
@@ -109,6 +111,16 @@ MissionDashboardCtrl.prototype.getTeamsToDisplay = function() {
         }
     }
     return teams;
+};
+
+/**
+ * Gets the telemetry for a team.
+ * @param{!Object} team The team for which to get telemetry.
+ * @return {?Object} The telemetry for the team.
+ * @export
+ */
+MissionDashboardCtrl.prototype.getTelemetry = function(team) {
+    return this.backend_.telemetry[team.id];
 };
 
 

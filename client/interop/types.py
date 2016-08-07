@@ -5,7 +5,6 @@ requires. They include input validation, making a best-effort to ensure
 values will be accepted by the server.
 """
 
-import dateutil.parser
 import re
 import sys
 

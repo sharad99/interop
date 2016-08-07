@@ -39,7 +39,9 @@
     <hr></hr>
 
     <div class="row" ng-repeat="team in missionDashboardCtrl.getTeamsToDisplay()">
-        <team-status team="team"></team-status>
+        <team-status team="team"
+                     telemetry="missionDashboardCtrl.getTelemetry(team)">
+        </team-status>
     </div>
   </div>
 

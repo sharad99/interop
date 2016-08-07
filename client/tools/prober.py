@@ -14,7 +14,7 @@ import time
 
 import datagen
 import flightsim
-from interop import AsyncClient, InteropError, ServerInfo, Telemetry, StationaryObstacle, MovingObstacle
+from interop import AsyncClient, InteropError, Telemetry, StationaryObstacle, MovingObstacle
 
 
 def run(client, data_generator, interop_time, logger):
@@ -33,11 +33,9 @@ def run(client, data_generator, interop_time, logger):
         # Get generated data
         telemetry = data_generator.get_uas_telemetry(start_time)
         # Execute interop requests
-        server_info_resp = client.get_server_info()
         telemetry_resp = client.post_telemetry(telemetry)
         obstacle_resp = client.get_obstacles()
         # Wait for completion
-        server_info_resp.result()
         telemetry_resp.result()
         obstacle_resp.result()
         # Note elapsed time

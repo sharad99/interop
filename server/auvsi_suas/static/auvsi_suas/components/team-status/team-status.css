@@ -14,3 +14,8 @@
 .team-status-active.team-status-in-air {
     background-color: #99FF99;  // Green if both
 }
+
+.team-status-icon {
+    font-size: 12pt;
+    padding: 10px;
+}
