@@ -46,6 +46,5 @@ class auvsi_suas::server_install {
     package { $npm_deps:
         ensure => 'present',
         provider => 'npm',
-        require => Class["nodejs"],
     }
 }

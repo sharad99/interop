@@ -6,6 +6,9 @@ class auvsi_suas::postgresql_setup {
     require auvsi_suas::base
 
     # Setup postgresql server
+    class { 'postgresql::globals':
+	version => '9.5',
+    }
     class { 'postgresql::server':
         postgres_password => 'postgresql_pass',
     }

@@ -30,9 +30,8 @@ function ensure_puppet_module() {
         ${PUPPET} module install ${version_arg} ${module}
     else
         log "Puppet module \"${module}\" already installed"
+#	${PUPPET} module upgrade ${module}
     fi
-
-    ${PUPPET} module upgrade ${module}
 }
 
 # Save all output to a log file.
@@ -59,7 +58,7 @@ apt-get -y update
 
 # Install Puppet
 log "Installing Puppet and modules..."
-apt-get -y install puppet-agent
+apt-get -y install puppet-agent nodejs npm
 mkdir -p /etc/puppet/modules/
 ensure_puppet_module puppetlabs-stdlib
 ensure_puppet_module puppetlabs-concat

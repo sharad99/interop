@@ -4,9 +4,15 @@ Vagrant Setup
 Using Vagrant makes setup quite simple.
 
 #. `Install Vagrant <https://www.vagrantup.com/>`__
+#. `Install Vagrant Virtualbox Guest Additions`__
+
+.. code-block:: bash
+
+   $ vagrant plugin install vagrant-vbguest
+
 #. `Install Box for
    Ubuntu <https://docs.vagrantup.com/v2/boxes.html>`__. You want the
-   box ubuntu/trusty64.
+   box ubuntu/xenial64.
 #. `Start
    Vagrant <https://docs.vagrantup.com/v2/getting-started/index.html>`__.
 

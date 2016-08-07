@@ -26,7 +26,7 @@ Competition system. The underlying systems are as follows:
       Machines and launching setup scripts.
 
 #. :doc:`ubuntu`.
-   Ubuntu 14.04 LTS is the operating system supported by the competition
+   Ubuntu 16.04 LTS is the operating system supported by the competition
    server. This operating system is a distribution of Linux.
 #. :doc:`git`.
    Git is a software version control system. Git is similar to systems

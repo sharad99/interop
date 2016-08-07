@@ -31,6 +31,5 @@ class auvsi_suas::base {
         ensure => "latest",
     }
 
-    # Install nodejs and npm.
     class { 'nodejs': }
 }

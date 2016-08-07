@@ -6,21 +6,21 @@
 class auvsi_suas::apt_sources {
     include apt
 
-    apt::source { "ubuntu_trusty":
+    apt::source { "ubuntu_xenial":
         location        => "http://archive.ubuntu.com/ubuntu/",
-        release         => "trusty",
+        release         => "xenial",
         repos           => "main restricted universe multiverse",
     }
 
-    apt::source { "ubuntu_trusty-updates":
+    apt::source { "ubuntu_xenial-updates":
         location        => "http://archive.ubuntu.com/ubuntu/",
-        release         => "trusty-updates",
+        release         => "xenial-updates",
         repos           => "main restricted universe multiverse",
     }
 
-    apt::source { "ubuntu_trusty-security":
+    apt::source { "ubuntu_xenial-security":
         location        => "http://archive.ubuntu.com/ubuntu/",
-        release         => "trusty-security",
+        release         => "xenial-security",
         repos           => "main restricted universe multiverse",
     }
 }

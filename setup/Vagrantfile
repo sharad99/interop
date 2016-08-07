@@ -16,8 +16,8 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
   end
 
   # Every Vagrant virtual environment requires a box to build off of.
-  config.vm.box = "ubuntu/trusty64"
-  config.vm.box_url = "https://vagrantcloud.com/ubuntu/boxes/trusty64/versions/20150521.0.0/providers/virtualbox.box"
+  config.vm.box = "ubuntu/xenial64"
+  config.vm.box_url = "https://vagrantcloud.com/ubuntu/boxes/xenial64/versions/20160805.0.0/providers/virtualbox.box"
 
   # Forward port for SUAS server
   config.vm.network "forwarded_port", guest: 80,   host: 8000
